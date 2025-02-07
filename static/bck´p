@@ -63,3 +63,4 @@ admin.site.register(Praca)
 admin.site.register(Subpraca)
 admin.site.register(Contract)
 admin.site.register(Driver.history.model, HistoricalTestModelAdmin)
+
