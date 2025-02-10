@@ -1,33 +1,32 @@
-name: Deploy na VPS
+name: Deploy para VPS (Hostinger OpenLiteSpeed)
 
 on:
   push:
     branches:
-      - main  # Ou a branch que você usa para deploy
+      - main  # Ou "master", dependendo do seu repositório
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout do código
+      - name: Checkout do Código
         uses: actions/checkout@v3
 
       - name: Configurar SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.VPS_SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H 82.29.59.169 >> ~/.ssh/known_hosts
 
-      - name: Conectar e atualizar código na VPS
+      - name: Conectar à VPS e Fazer o Deploy
         run: |
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
-            cd /caminho/do/seu/projeto  # Ajuste para o caminho correto
-            git pull origin main  # Ou outra branch
-            source venv/bin/activate  # Se estiver usando virtualenv
-            pip install -r requirements.txt
-            python manage.py migrate
-            python manage.py collectstatic --noinput
-            systemctl restart gunicorn  # Ou outro serviço usado
+          ssh root@82.29.59.169 << 'EOF'
+            cd /usr/local/lsws/Example/html/demo
+            git pull origin main  # Atualiza o código
+            source html/bin/activate  # Ativa o ambiente virtual
+            python manage.py migrate  # Aplica migrações do banco
+            python manage.py collectstatic --noinput  # Coleta arquivos estáticos
+            touch tmp/restart.txt  # Reinicia o servidor OpenLiteSpeed
           EOF
