@@ -18,15 +18,28 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.VPS_SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+          # Adiciona o host da VPS à lista de hosts conhecidos (para evitar warnings)
           ssh-keyscan -H 82.29.59.169 >> ~/.ssh/known_hosts
 
       - name: Conectar à VPS e Fazer o Deploy
         run: |
-          ssh root@82.29.59.169 << 'EOF'
+          # Conectar-se via SSH e executar os comandos para atualizar o servidor
+          ssh -o StrictHostKeyChecking=no root@82.29.59.169 << 'EOF'
+            # Navegar até o diretório do projeto
             cd /usr/local/lsws/Example/html/demo
+
+            # Atualizar o código do repositório
             git pull origin main  # Atualiza o código
-            source html/bin/activate  # Ativa o ambiente virtual
-            python manage.py migrate  # Aplica migrações do banco
-            python manage.py collectstatic --noinput  # Coleta arquivos estáticos
-            touch tmp/restart.txt  # Reinicia o servidor OpenLiteSpeed
+
+            # Ativar o ambiente virtual
+            source html/bin/activate
+
+            # Aplicar as migrações do banco de dados
+            python manage.py migrate
+
+            # Coletar arquivos estáticos
+            python manage.py collectstatic --noinput
+
+            # Reiniciar o servidor OpenLiteSpeed para aplicar as mudanças
+            touch tmp/restart.txt
           EOF
