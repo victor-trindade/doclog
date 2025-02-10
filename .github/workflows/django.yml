@@ -1,0 +1,33 @@
+name: Deploy na VPS
+
+on:
+  push:
+    branches:
+      - main  # Ou a branch que você usa para deploy
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Configurar SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Conectar e atualizar código na VPS
+        run: |
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+            cd /caminho/do/seu/projeto  # Ajuste para o caminho correto
+            git pull origin main  # Ou outra branch
+            source venv/bin/activate  # Se estiver usando virtualenv
+            pip install -r requirements.txt
+            python manage.py migrate
+            python manage.py collectstatic --noinput
+            systemctl restart gunicorn  # Ou outro serviço usado
+          EOF
