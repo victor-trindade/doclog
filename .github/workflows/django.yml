@@ -3,7 +3,7 @@ name: Deploy para VPS (Hostinger OpenLiteSpeed)
 on:
   push:
     branches:
-      - main  # Ou "master", dependendo do seu repositório
+      - main  # Alterar para "master" se necessário
 
 jobs:
   deploy:
@@ -17,22 +17,22 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.VPS_SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          # Adiciona o host da VPS à lista de hosts conhecidos (para evitar warnings)
+          chmod 400 ~/.ssh/id_rsa  # Permissão segura
           ssh-keyscan -H 82.29.59.169 >> ~/.ssh/known_hosts
 
       - name: Conectar à VPS e Fazer o Deploy
         run: |
-          # Conectar-se via SSH e executar os comandos para atualizar o servidor
           ssh -o StrictHostKeyChecking=no root@82.29.59.169 << 'EOF'
+            set -e  # Para encerrar o script caso ocorra algum erro
+
             # Navegar até o diretório do projeto
             cd /usr/local/lsws/Example/html/demo
 
             # Atualizar o código do repositório
-            git pull origin main  # Atualiza o código
+            git pull origin main
 
-            # Ativar o ambiente virtual
-            source html/bin/activate
+            # Ativar o ambiente virtual (verifique se esse caminho está correto)
+            source /usr/local/lsws/Example/html/bin/activate
 
             # Aplicar as migrações do banco de dados
             python manage.py migrate
