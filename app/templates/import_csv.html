@@ -1,0 +1,16 @@
+<!-- templates/import_csv.html -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Importação de CSV</title>
+</head>
+<body>
+    <h1>Importar CSV de Motoristas e Empresas</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Importar</button>
+    </form>
+</body>
+</html>

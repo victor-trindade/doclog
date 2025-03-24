@@ -1,0 +1,22 @@
+.cep-container {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Espaçamento entre os itens */
+}
+
+.cep-container input {
+    flex-grow: 1;
+}
+
+#buscarCep {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#buscarCep:hover {
+    background-color: #0056b3;
+}

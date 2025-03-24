@@ -1,0 +1,78 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container d-flex justify-content-center" style="min-height: 30vh; padding-top: 1vh;">
+    <div class="card" style="width: 100%; max-width: 500px;">
+        <div class="card-header">
+            <h3 class="card-title text-center">Importação de Arquivos CSV</h3>
+        </div>
+
+        <div class="card-body">
+            <form method="post" class="form" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="filial" class="control-label">Filial:</label>
+                    <select name="filial" id="filial" class="form-control {% if form.filial.errors %}is-invalid{% endif %}">
+                        {% for value, label in form.filial.field.choices %}
+                            <option value="{{ value }}" {% if form.filial.value == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if form.filial.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.filial.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="arquivos" class="control-label">Arquivo CSV:</label>
+                    <div class="custom-file">
+                        <input type="file" name="arquivos" id="arquivos" class="custom-file-input {% if form.arquivos.errors %}is-invalid{% endif %}" required>
+                        <label class="custom-file-label" for="arquivos">Selecione o arquivo</label>
+                    </div>
+                    {% if form.arquivos.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.arquivos.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group text-center">
+                    <button type="submit" class="btn btn-primary">Importar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var arquivosInput = document.getElementById("arquivos");
+        var arquivosLabel = document.querySelector('label[for="arquivos"]'); // Seleciona o label do input
+
+        // Alerta para verificar se o evento está funcionando
+        arquivosInput.addEventListener("change", function() {
+            console.log("Evento 'change' disparado!"); // Verifica se o evento está sendo chamado
+            var fileName = arquivosInput.files.length > 0 ? arquivosInput.files[0].name : "Selecione o arquivo";
+            arquivosLabel.textContent = fileName; // Atualiza o texto do label
+        });
+
+        // Atualiza o label se houver algum arquivo pré-selecionado quando a página carregar
+        if (arquivosInput.files.length > 0) {
+            arquivosLabel.textContent = arquivosInput.files[0].name;
+        }
+
+        // A solução do Bootstrap/jQuery para atualizar o label após selecionar o arquivo
+        $('.custom-file-input').on('change', function() {
+            var fileName = $(this).val().split('\\').pop(); // Pega o nome do arquivo selecionado
+            $(this).next('.custom-file-label').addClass("selected").html(fileName); // Atualiza o label
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}
